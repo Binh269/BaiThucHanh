@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Flask Web</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>MQTT Flask Web Application</h1>
+
+    <h3>Nhận dữ liệu từ MQTT:</h3>
+    <p><strong>Thời gian:</strong> <span id="time">{{ data.time }}</span></p>
+    <p><strong>Dữ liệu:</strong> <span id="data">{{ data.data }}</span></p>
+    <p><strong>Nhiệt độ:</strong> <span id="temperature">{{ data.temperature }}</span> °C</p>
+    <p><strong>Độ ẩm:</strong> <span id="humidity">{{ data.humidity }}</span> %</p>
+
+    <h3>Gửi dữ liệu lên MQTT:</h3>
+    <form id="sendForm">
+        <label for="user_data">Dữ liệu muốn gửi:</label>
+        <input type="text" id="user_data" name="user_data" required>
+        <button type="submit">Gửi</button>
+    </form>
+
+    <script>
+        // Gửi dữ liệu bằng AJAX
+        $("#sendForm").on("submit", function(e) {
+            e.preventDefault();
+            const userData = $("#user_data").val();
+            $.post("/send", { user_data: userData ,"temperature":"22","humidity":"22"}, function(response) {
+                alert(response.message);
+            });
+        });
+
+        // Tự động cập nhật dữ liệu nhận từ server
+        setInterval(() => {
+            $.get("/", function(html) {
+                const time = $(html).find("#time").text();
+                const data = $(html).find("#data").text();
+                const temperature = $(html).find("#temperature").text();
+                const humidity = $(html).find("#humidity").text();
+
+                $("#time").text(time);
+                $("#data").text(data);
+                $("#temperature").text(temperature);
+                $("#humidity").text(humidity);
+            });
+        }, 3000); // Cập nhật mỗi 3 giây
+    </script>
+</body>
+</html>
